@@ -3,15 +3,14 @@ import { GoogleAuth } from 'google-auth-library';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CHAT_ID = '-4687358397';
 
 app.use(express.json());
 
-const BOT_TOKEN = '7640328819:AAEfUWciE45VehMSPDXz7k-8B9zrjqsA9P0';
+const BOT_TOKEN = process.env.BOTOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 const auth = new GoogleAuth({
-  keyFile: './chatkit-yfkj-9c7b7cfc8088.json',
+  keyFile: './chatkit-yfkj-9bb0efb41bf8.json',
   scopes: 'https://www.googleapis.com/auth/cloud-platform',
 });
 
@@ -60,7 +59,7 @@ app.get('/', (req, res) => {
 
 app.post('/telegram', async (req, res) => {
   const mensaje = req.body.message?.text;
-  const chatId = CHAT_ID;
+  const chatId = process.env.CHAT_ID;
 
   if (!mensaje || !chatId) {
     console.warn('⚠️ Mensaje o chatId faltante');
