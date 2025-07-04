@@ -1,6 +1,5 @@
 import express from 'express';
 import { GoogleAuth } from 'google-auth-library';
-import fetch from 'node-fetch'; // Si usas Node < 18
 
 const app = express();
 const PORT = process.env.PORT || 3000;
