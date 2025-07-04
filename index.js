@@ -4,7 +4,7 @@ import { GoogleAuth } from 'google-auth-library';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const CHAT_ID = '-4687358397';
 app.use(express.json());
 
 // Configura tu bot de Telegram
@@ -13,7 +13,7 @@ const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 // Configura tu archivo de clave y proyecto de Dialogflow
 const auth = new GoogleAuth({
-  keyFile: './chatkit-yfkj-9c7b7cfc8088', // asegúrate de tenerlo en la raíz
+  keyFile: './chatkit-yfkj-9c7b7cfc8088.json', // asegúrate de tenerlo en la raíz
   scopes: 'https://www.googleapis.com/auth/cloud-platform',
 });
 
@@ -54,7 +54,7 @@ app.get('/', (req, res) => {
 // Webhook de Telegram (mensajes entrantes)
 app.post('/telegram', async (req, res) => {
   const mensaje = req.body.message?.text;
-  const chatId = req.body.message?.chat?.id;
+  const chatId = CHAT_ID;
 
   if (!mensaje || !chatId) {
     return res.sendStatus(400);
