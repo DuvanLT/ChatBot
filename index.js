@@ -14,7 +14,7 @@ app.post('/webhook', async (req, res) => {
 
   let mensaje = 'Intent no reconocido.';
 
-  if (intent === 'saludo') {
+  if (intent === 'ChatKIT_saludos') {
     mensaje = '¡Hola desde Dialogflow, enviado a Teams!';
   }
 
@@ -42,6 +42,10 @@ app.post('/webhook', async (req, res) => {
   res.json({
     fulfillmentText: mensaje,
   });
+});
+
+app.get('/', (req, res) => {
+  res.send('Webhook de Dialogflow corriendo.');
 });
 
 app.listen(PORT, () => {
