@@ -10,7 +10,7 @@ const BOT_TOKEN = process.env.BOTOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 const auth = new GoogleAuth({
-  keyFile: './chatkit-yfkj-9bb0efb41bf8.json',
+  keyFile: API_GOOGLE,
   scopes: 'https://www.googleapis.com/auth/cloud-platform',
 });
 
@@ -98,5 +98,6 @@ app.post('/telegram', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
+
 
 
