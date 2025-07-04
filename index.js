@@ -1,5 +1,7 @@
 import express from 'express';
 import { GoogleAuth } from 'google-auth-library';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,9 +12,14 @@ const BOT_TOKEN = process.env.BOTOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 const auth = new GoogleAuth({
-  keyFile: API_GOOGLE,
+  credentials: {
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  },
+  projectId: process.env.GOOGLE_PROJECT_ID,
   scopes: 'https://www.googleapis.com/auth/cloud-platform',
 });
+
 
 const getToken = async () => {
   const client = await auth.getClient();
