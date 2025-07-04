@@ -12,12 +12,7 @@ app.use(express.json());
 
 app.post('/webhook', async (req, res) => {
   const intent = req.body.queryResult.intent.displayName;
-
-  let mensaje = 'Intent no reconocido.';
-
-  if (intent === 'ChatKIT_saludos') {
-    mensaje = '¡Hola desde Dialogflow, enviado a Telegram!';
-  }
+  let mensaje = req.body.queryResult.fulfillmentText;
 
   // Enviar a Telegram
   try {
