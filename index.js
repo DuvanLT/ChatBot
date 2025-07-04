@@ -1,30 +1,32 @@
-
 import express from 'express';
 import { GoogleAuth } from 'google-auth-library';
+import fetch from 'node-fetch'; // Si usas Node < 18
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CHAT_ID = '-4687358397';
+
 app.use(express.json());
 
-// Configura tu bot de Telegram
-const BOT_TOKEN = '7640328819:AAEfUWciE45VehMSPDXz7k-8B9zrjqsA9P0'; // reemplaza con el real
+const BOT_TOKEN = '7640328819:AAEfUWciE45VehMSPDXz7k-8B9zrjqsA9P0';
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-// Configura tu archivo de clave y proyecto de Dialogflow
 const auth = new GoogleAuth({
-  keyFile: './chatkit-yfkj-9c7b7cfc8088.json', // asegúrate de tenerlo en la raíz
+  keyFile: './chatkit-yfkj-9c7b7cfc8088.json',
   scopes: 'https://www.googleapis.com/auth/cloud-platform',
 });
 
 const getToken = async () => {
   const client = await auth.getClient();
   const tokenResponse = await client.getAccessToken();
+  console.log('🟢 Token obtenido correctamente');
   return tokenResponse.token;
 };
 
 const llamarDialogflow = async (mensaje, sessionId) => {
   const token = await getToken();
+
+  console.log('📡 Enviando a Dialogflow:', mensaje);
 
   const res = await fetch(`https://dialogflow.googleapis.com/v2/projects/chatkit-yfkj/agent/sessions/${sessionId}:detectIntent`, {
     method: 'POST',
@@ -36,38 +38,44 @@ const llamarDialogflow = async (mensaje, sessionId) => {
       queryInput: {
         text: {
           text: mensaje,
-          languageCode: 'es', // cambia si usas otro idioma
+          languageCode: 'es',
         },
       },
     }),
   });
 
   const json = await res.json();
-  return json.queryResult.fulfillmentText || 'Lo siento, no entendí eso.';
+
+  if (res.ok) {
+    console.log('🟢 Respuesta de Dialogflow:', JSON.stringify(json, null, 2));
+  } else {
+    console.error('❌ Error al llamar a Dialogflow:', json);
+  }
+
+  return json?.queryResult?.fulfillmentText || 'Lo siento, no entendí eso.';
 };
 
-// Ruta principal para verificar si corre
 app.get('/', (req, res) => {
   res.send('✅ Webhook de Telegram y Dialogflow activo.');
 });
 
-// Webhook de Telegram (mensajes entrantes)
 app.post('/telegram', async (req, res) => {
   const mensaje = req.body.message?.text;
   const chatId = CHAT_ID;
 
   if (!mensaje || !chatId) {
+    console.warn('⚠️ Mensaje o chatId faltante');
     return res.sendStatus(400);
   }
 
-  console.log(`📨 Mensaje recibido: ${mensaje}`);
+  console.log(`📨 Mensaje recibido de Telegram: "${mensaje}"`);
 
-  // Enviar a Dialogflow
-  const respuesta = await llamarDialogflow(mensaje, chatId);
-
-  // Enviar la respuesta a Telegram
   try {
-    await fetch(`${TELEGRAM_API}/sendMessage`, {
+    const respuesta = await llamarDialogflow(mensaje, chatId);
+
+    console.log(`📤 Enviando a Telegram: "${respuesta}"`);
+
+    const r = await fetch(`${TELEGRAM_API}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -75,9 +83,15 @@ app.post('/telegram', async (req, res) => {
         text: respuesta,
       }),
     });
-    console.log(`✅ Respuesta enviada: ${respuesta}`);
+
+    if (!r.ok) {
+      const errorText = await r.text();
+      console.error('❌ Error al enviar a Telegram:', errorText);
+    } else {
+      console.log('✅ Mensaje enviado a Telegram');
+    }
   } catch (err) {
-    console.error('❌ Error al enviar mensaje a Telegram:', err);
+    console.error('🔥 Error general en webhook:', err);
   }
 
   res.sendStatus(200);
