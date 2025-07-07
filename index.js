@@ -13,6 +13,13 @@ const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 const auth = new GoogleAuth({
   credentials: {
+    type: process.env.TYPE,  
+    project_id: process.env.GOOGLE_PROJECT_ID,
+    google_private_key: process.env.GOOGLE_PRIVATE_KEY,
+    token_uri: process.env.TOKEN_URI,
+    client_id: process.env.CLIENT_ID,
+    client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
+    auth_provider_x509_cert_url: process.env.AUTH_PROVIDER,
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
     private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   },
